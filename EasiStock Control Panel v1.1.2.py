@@ -150,10 +150,10 @@ def db_creation():
     c.execute('''
                     CREATE TABLE IF NOT EXISTS Products (
                     [product_id] INTEGER PRIMARY KEY,
-                    [product_name] TEXT NOT NULL,
+                    [product_name] BLOB NOT NULL,
                     [product_count] INTEGER NOT NULL,
-                    [product_price] REAL NOT NULL,
-                    [product_desc] TEXT NOT NULL,
+                    [product_price] BLOB NOT NULL,
+                    [product_desc] BLOB,
                     [date_made] INTEGER NOT NULL,
                     [last_change_day] INTEGER NOT NULL,
                     [last_change_time] INTEGER NOT NULL)
@@ -166,8 +166,8 @@ def db_creation():
     print("Adding Root Record")
     time.sleep(1)
 
-    values = [(None, "Root Record", "255", "5.00", "Root Record Description Test, very good product!", d1, d2, d3), # this is an array of values that /will/ be used with the variable below
-            (None, "Root Record2", "255", "5.00", "Root Record Description Test, very bad product!", d1, d2, d3)]
+    values = [(None, "Root Record", "255", "£5.00", "Root Record Description Test, very good product!", d1, d2, d3), # this is an array of values that /will/ be used with the variable below
+            (None, "Root Record2", "255", "£5.00", "Root Record Description Test, very bad product!", d1, d2, d3)]
 
     insertion = ('''INSERT INTO Products VALUES (?, ?, ?, ?, ?, ?, ?, ?)''')
 
