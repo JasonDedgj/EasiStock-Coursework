@@ -68,4 +68,24 @@ v1.5.10.2 | 04/02/22 - 05/02/22 : ==============================================
    redirects you to the
    home page.
 
-=========================================================================================
+v1.5.11.2 | 20/02/22 ====================================================================
+
+- Fixed ABP Bug (+0.0.1.0)
+ - First 3 rows would
+   have missing buttons
+   due to new scrollbar
+   implementation.
+
+v2.5.12.3 | 20/02/22 - XX/XX/XX ==============================================================================>>>>  :D
+
++ Edit Feature (+1.0.0.0)
+  - Can edit:
+    - Name
+    - Price
+    - Stock
+    - Description
+  + Error checking for all
+    data being changed.
+
++ Added more weak passwords (+0.0.0.1)
+  - Added additional 11000 words (mainly countries)
