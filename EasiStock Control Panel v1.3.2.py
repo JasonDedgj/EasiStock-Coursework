@@ -7,6 +7,8 @@ import re
 import smtplib
 from datetime import datetime
 from os import system
+import sys
+from sys import exit
 # ==============================================================================> /\ Module Imports
 
 # ==============================================================================> \/ Variables and other

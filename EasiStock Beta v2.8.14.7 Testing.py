@@ -17,6 +17,8 @@ import json
 from urllib.request import urlopen
 from datetime import datetime
 global loaded
+import sys
+from sys import exit
 
 global d1
 global d2
@@ -159,6 +161,9 @@ pass_e = 0
 def ld_bt():
     print("")
 
+def leave_p():
+    exit()
+
 now = datetime.now()
 current_time = now.strftime("%H:%M:%S")
 
@@ -265,11 +270,9 @@ def ConstantButtons(current):
         #print("Constant Widgets placed, testing APC")
 
 def lockout_place():
-    def leave():
-        exit()
     error_lock = tk.Label(Lockout, text = 'LOCKED OUT.', font = ("Tw Cen MT", 30))
     error_lock2 = tk.Label(Lockout, text = "You have reached 5 tries and been locked out.")
-    leave = tk.Button (Lockout, text = 'Exit', font =("Calibri Bold", 15), relief = "groove", height = 2, width = 9, activebackground = "red", command = leave)
+    leave = tk.Button (Lockout, text = 'Exit', font =("Calibri Bold", 15), relief = "groove", height = 2, width = 9, activebackground = "red", command = leave_p)
 
     error_lock.place(x = 120 , y = 50)
     error_lock2.place(x = 115 , y = 95 )
@@ -433,12 +436,9 @@ lockout_place()
 # ==============================================================================> \/ DB Check
 
 if db_exists == False:
-    def leave():
-        exit()
-
     error_no_db = tk.Label(NoDB, text = 'Sorry, No Database Exists.', font = ("Tw Cen MT", 30))
     error_no_db2 = tk.Label(NoDB, text = "Please create one in the EasiStock Control Panel.")
-    leave = tk.Button (NoDB, text = 'Exit', font =("Calibri Bold", 15), relief = "groove", height = 2, width = 9, activebackground = "red", command = leave)
+    leave = tk.Button (NoDB, text = 'Exit', font =("Calibri Bold", 15), relief = "groove", height = 2, width = 9, activebackground = "red", command = leave_p)
 
     error_no_db.place(x = 33 , y = 50)
     error_no_db2.place(x = 115 , y = 95 )
