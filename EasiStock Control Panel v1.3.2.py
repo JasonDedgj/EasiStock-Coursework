@@ -3,9 +3,10 @@ import datetime
 import time
 import sqlite3
 import string
+import re
+import smtplib
 from datetime import datetime
 from os import system
-
 # ==============================================================================> /\ Module Imports
 
 # ==============================================================================> \/ Variables and other
@@ -25,6 +26,32 @@ today = datetime.now()
 d1 = today.strftime("%d/%m/%y")
 d2 = today.strftime("%d/%m/%y")
 d3 = today.strftime("%H : %M : %S")
+
+# ==============================================================================> \/ EMAIL SYSTEM
+# an emailing system for sending successful registration emails.
+
+def send_email(to, subject, body, method):
+    try:
+        gmail_user = 'easistudios@gmail.com'
+        gmail_password = 'F@=UrGd4b&k!C6y+'
+        sent_from = gmail_user
+
+        email_text = """\
+From: %s
+To: %s
+Subject: %s
+
+%s
+""" % (sent_from, ", ".join(to), subject, body)
+ 
+        smtp_server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+        smtp_server.ehlo()
+        smtp_server.login(gmail_user, gmail_password)
+        smtp_server.sendmail(sent_from, to, email_text)
+        smtp_server.close()
+        print ("Email sent successfully!")
+    except Exception as ex:
+        print ("Something went wrong….",ex)
 
 
 # ==========================================================> \/ Password checking and/or creation (SmartVar Technology)
@@ -46,13 +73,15 @@ except: # if a database doesn't exist, it should raise an error, if so, it creat
                     [f_name] TEXT NOT NULL,
                     [l_name] TEXT NOT NULL,
                     [reg_date] BLOB NOT NULL,
-                    [pass] TEXT NOT NULL)
+                    [pass] TEXT NOT NULL,
+                    [admin] INTEGER NOT NULL,
+                    [email] BLOB NOT NULL)
                     ''') # TEXT = Is simply letters, 
     conn.commit() # saves the changes
 
-    values = [("21DoniLa", "larry", "doni", "21-05-12", "pass1"), # this is an array of values that /will/ be used with the variable below
-              ("15DedgjJa", "Jason", "Dedgj", "15-05-12", "pass2")] 
-    insertion = ('''INSERT INTO Users VALUES (?, ?, ?, ?, ?)''') # by splitting parameters into seperate variables, it allows for multiple values to be insterted at a time
+    values = [("21DoniLa", "Larry", "Doni", "12-12-20", "pass1", 2, "jason.dedgjonaj1@gmail.com"), # this is an array of values that /will/ be used with the variable below
+              ("15DedgjJa", "Jason", "Dedgj", d2, "pass2", 0, "15dedgjonajja@greigcityacademy.co.uk")] 
+    insertion = ('''INSERT INTO Users VALUES (?, ?, ?, ?, ?, ?, ?)''') # by splitting parameters into seperate variables, it allows for multiple values to be insterted at a time
 
     conn.executemany(insertion, values) # executemany combines these in order to make the params work
     conn.commit()
@@ -329,7 +358,7 @@ def db_reg_user_LNAME(First_Name):
     reg_checks(last_name, db_reg_user_FNAME)
 
     if user_first == True:
-        user_reg_db(First_Name, last_name, year) # Feeds info to other function, ready to generate username.
+        user_reg_EMAIL(first_name, last_name) # Feeds info to other function, ready to generate username.
         
 
 
@@ -339,7 +368,8 @@ def db_reg_user_FNAME():
     global user_first
     print("Welcome to the ES User Registration Form.")
     time.sleep(1)
-   
+
+    global first_name
     first_name = input ("\nPlease input your First Name, or enter 0 to return to the main menu.\n").split()
     first_name = first_name[0]
 
@@ -366,8 +396,8 @@ def reg_checks(user_input, return_function):
         print("Invalid input, you cannot use any special character (! * ; : _ @ . . . ")
         return_function()
 
-    if len(user_input) < 4: # =========> \/ Min Char check
-            print("Invalid input, Usernames must be more than 4 characters long.")
+    if len(user_input) < 3: # =========> \/ Min Char check
+            print("Invalid input, Usernames must be more than 3 characters long.")
             min_num_con = True
             return_function()
 
@@ -383,9 +413,42 @@ def reg_checks(user_input, return_function):
         if user_first == False:
             user_first = True
 
+# ============================================================================== > \/ REGISTRATION: EMAIL
+
+def user_reg_EMAIL(f_name, l_name):
+    global user_last
+    global d2
+
+    regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'  
+  
+    def check(email):
+        gca = "greigcityacademy.co.uk"
+        if gca in email:
+            return email
+        else:
+            if(re.search(regex,email)):   
+                return email
+            else:   
+                return 0 
+
+    email_inp = input ("\nPlease enter your Email Address, or enter 0 to return to the main menu. \n ")
+    
+    if email_inp == "0":
+        menu_return()
+
+    else:
+        reg = check(email_inp)
+        if reg == 0:
+            print("Error, email not valid. \nPlease try again.")
+            user_reg_EMAIL(f_name, l_name)
+
+        if reg == email_inp:
+            user_reg_db(f_name, l_name, d2, reg) # Feeds info to other function, ready to generate username.
+    
+
 # ============================================================================== > \/ REGISTRATION : DB CHECK
                 
-def user_reg_db(first_name, last_name, year):
+def user_reg_db(first_name, last_name, date, email):
     number = 0
 
     FName = (first_name[0] + first_name[1]) # Example; the input "Jason " is shortened to " Ja "
@@ -403,22 +466,28 @@ def user_reg_db(first_name, last_name, year):
 
     if confirm_user == "2":
         try:
-            values = [(Username, first_name.capitalize(), last_name.capitalize(), year, "password")]
-            sql = "INSERT INTO Users VALUES (?, ?, ?, ?, ?)"
+            values = [(Username, first_name.capitalize(), last_name.capitalize(), d2, "password", 0, email)]
+            sql = "INSERT INTO Users VALUES (?, ?, ?, ?, ?, ?, ?)"
 
             conn.executemany(sql, values)
             conn.commit()
             print("\nUser has been registered!")
-            db_sel_users()
 
         except:
             print("")
             number = number + 1 # Fluid Numbering System, loops until the edited username will not clash with data
-            exception(first_name, last_name, year, number)
+            exception(first_name, last_name, d2, number, email)
+
+        subject = "Welcome to EasiStock!"
+        print(str(email))
+        body = "Hello, " + first_name.capitalize() + " and welcome to EasiStock, where load times are low and satisfaction is high! \n\nAt EasiStock you can complete a variety of tasks! From editing products, creating them and comprehensively viewing them with State-Of-The-Art SmartVar Technology, EasiStock is your go-to introduction to stock management on both a major business level to just managing your stuff. \nYour Registered Details are below: \n\nUsername = " + Username + "\nFull Name = " + first_name.capitalize() + " " + last_name.capitalize() + "\nPassword = password. \n\nBe sure to change your password once you login and mark this email as not spam! Thank you for registering at EasiStock and we hope you have a great experience with us! \n\nBest Regards, \nEasiStock."
+        to = str(email)
+        send_email(to, subject, body, "none")
+        db_sel_users()
 
 # ============================================================================== > \/ REGISTRATION: DB CHECK - EXCEPTION
 
-def exception (first_name, last_name, year, number):
+def exception (first_name, last_name, date, number, email):
     
     FName = (first_name[0] + first_name[1] + str(number)) # Example; the input "Jason " is shortened to " Ja " with addtional Copy Number
     year_str = str(year) # Makes the date a string so that it can be shortened
@@ -428,17 +497,17 @@ def exception (first_name, last_name, year, number):
     print("Sorry, this username is already taken, creating new username")
 
     try:
-            values = [(Username, first_name, last_name, year, "password")]
-            sql = "INSERT INTO Users VALUES (?, ?, ?, ?, ?)"
+            values = [(Username, first_name.capitalize(), last_name.capitalize(), d2, "password", 0, email)]
+            sql = "INSERT INTO Users VALUES (?, ?, ?, ?, ?, ?, ?)"
 
             conn.executemany(sql, values)
             conn.commit()
             print("User has been registered! Your username is", Username)
-            db_sel_users()
+            return 1
 
     except:
         number = number + 1
-        exception(first_name, last_name, year, number)
+        exception(first_name, last_name, date, number, email)
 
 # ============================================================================== > \/ Password Reset
 
